@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GutenbergApp.ViewModels"
+             xmlns:conv="clr-namespace:GutenbergApp.Converters"
+             x:Class="GutenbergApp.Views.CatalogPageView"
+             BackgroundColor="#F9F3F3">
+
+    <ContentPage.BindingContext>
+        <vm:CatalogPageViewModel/>
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <conv:StringToImageConverter x:Key="stringToImageSourceConverter"/>
+        <conv:StringToInverseVisibility x:Key="stringToInvVisibilityConverter"/>
+        <conv:StringToVisibilityConverter x:Key="stringToVisibilityConverter"/>
+
+        <DataTemplate x:Key="bookItemDataTemplate">
+            <Grid Padding="10,5,10,5" BackgroundColor="White">
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup Name="CommonStates">
+                        <VisualState Name="Normal" />
+                        <VisualState Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="#D0F9EF" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.4*"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                    <Label x:Name="titleText" Text="{Binding Title}"
+                           IsVisible="{Binding BookCover64EncodedString,Converter={StaticResource stringToInvVisibilityConverter}}"/>
+
+
+                    <Image IsVisible="{Binding BookCover64EncodedString, Converter={StaticResource stringToVisibilityConverter}}" 
+                           Source="{Binding BookCover64EncodedString, Converter={StaticResource stringToImageSourceConverter}}"/>
+                </StackLayout>
+
+                <StackLayout Grid.Column="1" VerticalOptions="StartAndExpand">
+                    <Label Text="Title:" />
+                    <Label Text="{Binding Title, Mode=OneWay}"/>
+
+                    <Label Text="Authors:" />
+                    <Label Text="{Binding AuthorsAsString, Mode=OneWay}"/>
+
+                    <Label Text="MediaType" />
+                    <Label Text="{Binding MediaType}"/>
+
+                </StackLayout>
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Books from Gutenberg.."
+                VerticalOptions="StartAndExpand" 
+                HorizontalOptions="CenterAndExpand" />
+
+            <CollectionView x:Name="booksCollection"
+                            Margin="8"
+                            RemainingItemsThreshold="4"
+                            RemainingItemsThresholdReachedCommand="{Binding BooksCollectionThresholdReached}"
+                            ItemTemplate="{StaticResource bookItemDataTemplate}"
+                            ItemsUpdatingScrollMode="KeepLastItemInView"
+                            ItemSizingStrategy="MeasureFirstItem"
+                            ItemsSource="{Binding Books}"
+                            SelectionMode="Single">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"  SnapPointsType="MandatorySingle"
+                           SnapPointsAlignment="Start"/>
+                </CollectionView.ItemsLayout>
+            </CollectionView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
